@@ -12,6 +12,7 @@ dependencies = [
     "numpy",
     "requests",
     "ccxt",
+    "pyarrow"
 ]
 
 [tool.setuptools.packages.find]
