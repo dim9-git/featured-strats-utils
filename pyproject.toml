@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "featured-strats-utils"
+version = "0.1.0"
+description = "Shared data fetching and feature utils for trading strategies"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas",
+    "numpy",
+    "requests",
+    "ccxt",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["featured_strats_utils*"]
