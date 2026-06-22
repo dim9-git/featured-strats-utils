@@ -26,6 +26,7 @@ def load_daily_json_data(url: str, column_name: str) -> pd.DataFrame:
         out = pd.read_csv(file_source, parse_dates=["Date"], index_col="Date")
         if out.index.tz is None:
             out.index = out.index.tz_localize("UTC")
+        out.index = out.index.as_unit("ms")
         return out.sort_index()
 
     payload = fetch_json_with_retries(url)
