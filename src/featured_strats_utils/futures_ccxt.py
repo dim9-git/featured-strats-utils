@@ -6,7 +6,7 @@ import ccxt
 import pandas as pd
 
 from .dataframe import ensure_datetime_index
-
+from .files import get_cache_parquet_path, get_filename_for_parquet
 
 @dataclass(frozen=True)
 class CcxtOiParams:
@@ -27,16 +27,6 @@ def _make_exchange(exchange_id: str, market_type: str):
             "fetchMarkets": ["linear", "inverse"],
         },
     })
-
-def oi_cache_parquet_path(params: CcxtOiParams) -> Path:
-    cache_dir = Path("../cache")
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    symbol = params.symbol.replace("/", "-").replace(":", "-")
-    file_name = (
-        f"oi_{params.exchange_id}_{symbol}_{params.timeframe}_"
-        f"{params.start}_{params.end}.parquet"
-    )
-    return cache_dir / file_name
 
 def convert_oi_bars_to_df(batch: list[dict]) -> pd.DataFrame:
     rows = []
@@ -60,7 +50,16 @@ def fetch_open_interest_df(params: CcxtOiParams) -> pd.DataFrame:
     tf_ms = int(ex.parse_timeframe(params.timeframe) * 1000)
     since_ms = ex.parse8601(f"{params.start}T00:00:00Z")
     end_ms = ex.parse8601(f"{params.end}T00:00:00Z") if params.end else None
-    cache_path = oi_cache_parquet_path(params)
+
+    cache_filename = get_filename_for_parquet(
+        params.symbol,
+        params.timeframe,
+        params.start,
+        params.end,
+        params.exchange_id
+    )
+    cache_path = get_cache_parquet_path(cache_filename, 'oi')
+
     if cache_path.exists():
         return ensure_datetime_index(pd.read_parquet(cache_path))
     part_dir = cache_path.parent / ".inprogress" / cache_path.stem

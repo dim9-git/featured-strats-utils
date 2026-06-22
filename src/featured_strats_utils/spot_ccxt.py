@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from typing import Literal
-from pathlib import Path
 
 import pandas as pd
 import ccxt
 
 from .dataframe import ensure_datetime_index
+from .files import get_filename_for_parquet, get_cache_parquet_path
 
 @dataclass(frozen=True)
 class CcxtParams:
@@ -31,7 +31,14 @@ def fetch_ccxt_df(params: CcxtParams) -> pd.DataFrame:
     since_ms = ex.parse8601(f"{params.start}T00:00:00Z")
     next_part_id = 0
 
-    cache_path = cache_parquet_path(params)
+    cache_filename = get_filename_for_parquet(
+        params.symbol,
+        params.timeframe,
+        params.start,
+        params.end,
+        params.exchange_id
+    )
+    cache_path = get_cache_parquet_path(cache_filename)
 
     # Early return
     if cache_path.exists():
@@ -92,10 +99,3 @@ def convert_bars_to_df(batch: list[list]) -> pd.DataFrame:
     df["Date"] = pd.to_datetime(df["Date"], unit="ms", utc=True)
     df = df.set_index("Date")
     return df
-
-def cache_parquet_path(params: CcxtParams) -> Path:
-    cache_dir = Path('../cache')
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    symbol = params.symbol.replace("/", "-").replace(":", "-")
-    file_name = f"{params.exchange_id}_{symbol}_{params.timeframe}_{params.start}_{params.end}.parquet"
-    return cache_dir / file_name

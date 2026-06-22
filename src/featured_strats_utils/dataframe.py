@@ -1,13 +1,11 @@
 import pandas as pd
 import numpy as np
 import requests
-from pathlib import Path
 
 def ensure_datetime_index(df: pd.DataFrame) -> pd.DataFrame:
     if not isinstance(df.index, pd.DatetimeIndex):
         return df.reset_index().rename(columns={"index": "Date"}).set_index("Date")
     return df
-
 
 
 def resample_metrics_daily(df: pd.DataFrame) -> pd.DataFrame:
@@ -71,33 +69,6 @@ def fetch_json_with_retries(url: str, retries: int = 3, timeout: int = 120) -> d
         except requests.RequestException as exc:
             last_exc = exc
     raise RuntimeError(f"Failed to fetch JSON after {retries} attempts: {url}") from last_exc
-
-
-def load_daily_json_data(url: str, column_name: str) -> pd.DataFrame:
-    cache_dir = Path("data/daily")
-    cache_dir.mkdir(parents=True, exist_ok=True)
-
-    dataset_name = url.split("/")[-1].split(".")[0]
-    file_source = cache_dir / f"{dataset_name}.csv"
-
-    if file_source.exists():
-        out = pd.read_csv(file_source, parse_dates=["Date"], index_col="Date")
-        if out.index.tz is None:
-            out.index = out.index.tz_localize("UTC")
-        return out.sort_index()
-
-    payload = fetch_json_with_retries(url)
-
-    raw = pd.DataFrame(payload["data"])
-    out = clean_daily_data(raw, column_name)
-
-    first_date = out.index[0].strftime("%Y-%m-%d")
-    last_date = out.index[-1].strftime("%Y-%m-%d")
-
-    out.to_csv(cache_dir / f"{dataset_name}.csv_{first_date}__{last_date}.csv")
-    out.to_csv(file_source)
-
-    return out
 
 
 def clean_daily_data(raw: pd.DataFrame, column_name: str) -> pd.DataFrame:

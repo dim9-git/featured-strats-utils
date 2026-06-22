@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from pathlib import Path
 from datetime import date, timedelta
 from io import BytesIO
 from zipfile import ZipFile
@@ -7,27 +6,20 @@ import requests
 
 import pandas as pd
 
+from .files import get_cache_parquet_path, get_filename_for_parquet
+
 BASE_URL = "https://data.binance.vision/data/futures/um/daily/metrics"
 
 @dataclass(frozen=True)
 class BinanceMetricsParams:
-    symbol: str = "BTCUSDT"          # raw Binance symbol, not CCXT unified
-    start: str = "2020-01-01"        # YYYY-MM-DD
-    end: str = "2026-06-07"          # exclusive, same convention as CcxtParams
-    cache_dir: Path = Path("../cache")
+    symbol: str             # raw Binance symbol, not CCXT unified
+    start: str
+    end: str
 
 
 def metrics_zip_url(symbol: str, day: date) -> str:
     day_str = day.strftime("%Y-%m-%d")
     return f"{BASE_URL}/{symbol}/{symbol}-metrics-{day_str}.zip"
-
-
-def metrics_cache_path(params: BinanceMetricsParams) -> Path:
-    params.cache_dir.mkdir(parents=True, exist_ok=True)
-    return (
-        params.cache_dir
-        / f"binance_metrics_{params.symbol}_{params.start}_{params.end}.parquet"
-    )
 
 
 def _download_metrics_day(symbol: str, day: date, session: requests.Session) -> pd.DataFrame | None:
@@ -77,7 +69,15 @@ def fetch_binance_metrics_df(params: BinanceMetricsParams) -> pd.DataFrame:
     Download BTCUSDT (or other UM perp) metrics from data.binance.vision.
     Returns 5-minute OI + long/short ratio columns.
     """
-    cache_path = metrics_cache_path(params)
+    cache_filename = get_filename_for_parquet(
+        params.symbol,
+        "1d",
+        params.start,
+        params.end
+    )
+    cache_path = get_cache_parquet_path(cache_filename, "binance_metrics")
+
+
     if cache_path.exists():
         df = pd.read_parquet(cache_path)
         if not isinstance(df.index, pd.DatetimeIndex):
