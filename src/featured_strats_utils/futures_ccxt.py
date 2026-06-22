@@ -44,7 +44,7 @@ def convert_oi_bars_to_df(batch: list[dict]) -> pd.DataFrame:
     ].astype(float)
     return df.set_index("Date")
 
-def fetch_open_interest_df(params: CcxtOiParams) -> pd.DataFrame:
+def fetch_futures_df(params: CcxtOiParams) -> pd.DataFrame:
     ex = _make_exchange(params.exchange_id, params.market_type)
     ex.load_markets()
     tf_ms = int(ex.parse_timeframe(params.timeframe) * 1000)

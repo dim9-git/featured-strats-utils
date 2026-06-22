@@ -17,7 +17,7 @@ class CcxtParams:
     limit: int = 1000
 
 
-def fetch_spot(params: CcxtParams) -> pd.DataFrame:
+def fetch_spot_df(params: CcxtParams) -> pd.DataFrame:
     ex_attr = getattr(ccxt, params.exchange_id)
     ex = ex_attr({
         "enableRateLimit": True,
