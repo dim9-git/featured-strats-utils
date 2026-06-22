@@ -5,7 +5,7 @@ import pandas as pd
 import ccxt
 
 from .dataframe import ensure_datetime_index
-from .files import get_filename_for_parquet, get_cache_parquet_path
+from .fetch_and_save import get_filename_for_parquet, get_cache_parquet_path
 
 @dataclass(frozen=True)
 class CcxtParams:
@@ -17,7 +17,7 @@ class CcxtParams:
     limit: int = 1000
 
 
-def fetch_ccxt_df(params: CcxtParams) -> pd.DataFrame:
+def fetch_spot(params: CcxtParams) -> pd.DataFrame:
     ex_attr = getattr(ccxt, params.exchange_id)
     ex = ex_attr({
         "enableRateLimit": True,

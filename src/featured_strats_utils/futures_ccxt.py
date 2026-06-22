@@ -6,7 +6,7 @@ import ccxt
 import pandas as pd
 
 from .dataframe import ensure_datetime_index
-from .files import get_cache_parquet_path, get_filename_for_parquet
+from .fetch_and_save import get_cache_parquet_path, get_filename_for_parquet
 
 @dataclass(frozen=True)
 class CcxtOiParams:
