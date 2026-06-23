@@ -1,13 +1,11 @@
-from .futures_ccxt import CcxtOiParams, fetch_futures_df
-from .spot_ccxt import CcxtParams, fetch_spot_df
-from .dataframe import sparse_cooldown
+from .ccxt import fetch_futures_df, fetch_spot_df, CcxtParams
+from .dataframe import sparse_cooldown, color_return
 from .statistics import rolling_zscore
 from .blockchain import INDICATOR_URLS, DATA_DAILY_BASE_URL, load_daily_json_data, load_all_indicators
 
 __all__ = [
-    'CcxtOiParams', 'fetch_futures_df',
-    'CcxtParams', 'fetch_spot_df',
-    'sparse_cooldown',
+    'CcxtParams', 'fetch_spot_df', 'fetch_futures_df',
+    'sparse_cooldown', 'color_return',
     'rolling_zscore',
-    'INDICATOR_URLS',  'DATA_DAILY_BASE_URL', 'load_daily_json_data', 'load_all_indicators'
+    'INDICATOR_URLS',  'DATA_DAILY_BASE_URL', 'load_daily_json_data', 'load_all_indicators',
 ]
