@@ -12,7 +12,7 @@ def get_df_cache_path(
     timeframe: str,
     exchange_id: str | None = None,
     prefix: None | str = None,
-    cache_dir: Path | None = Path('cache')) -> Path:
+    cache_dir: Path = Path('cache')) -> Path:
 
     cache_dir.mkdir(parents=True, exist_ok=True)
 
