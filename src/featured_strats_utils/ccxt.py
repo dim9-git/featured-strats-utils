@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Iterator, Literal
 import pandas as pd
 
@@ -15,6 +16,7 @@ class CcxtParams:
     end: str
     limit: int = 500
     market_type: Literal["future", "swap"] | None = None
+    cache_dir: Path | None = None
 
 def make_ccxt_exchange(
     exchange_id: Literal["binance", "kucoin", "okx", "bybit"],
@@ -70,7 +72,8 @@ def fetch_spot_df(params: CcxtParams) -> pd.DataFrame:
     end_ms = ex.parse8601(f"{params.end}T00:00:00Z") if params.end else None
     tf_ms = int(ex.parse_timeframe(params.timeframe) * 1000)
 
-    cache_path = get_df_cache_path(params.symbol, params.start, params.end, params.timeframe, params.exchange_id)
+    cache_path = get_df_cache_path(params.symbol, params.start, params.end, params.timeframe, params.exchange_id,
+                                   cache_dir=params.cache_dir)
 
     return fetch_with_cache(
         cache_path,
@@ -132,7 +135,8 @@ def fetch_futures_df(params: CcxtParams) -> pd.DataFrame:
     end_ms = ex.parse8601(f"{params.end}T00:00:00Z") if params.end else None
     tf_ms = int(ex.parse_timeframe(params.timeframe) * 1000)
 
-    cache_path = get_df_cache_path(params.symbol, params.start, params.end, params.timeframe, params.exchange_id, prefix="oi")
+    cache_path = get_df_cache_path(params.symbol, params.start, params.end, params.timeframe, params.exchange_id, prefix="oi",
+                                   cache_dir=params.cache_dir)
 
     return fetch_with_cache(
         cache_path,

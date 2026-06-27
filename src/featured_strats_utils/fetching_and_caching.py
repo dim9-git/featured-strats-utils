@@ -11,8 +11,9 @@ def get_df_cache_path(
     end: str,
     timeframe: str,
     exchange_id: str | None = None,
-    prefix: None | str = None) -> Path:
-    cache_dir = Path('cache')
+    prefix: None | str = None,
+    cache_dir: Path | None = Path('cache')) -> Path:
+
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     symbol_cleaned = symbol.replace("/", "-").replace(":", "-")
